@@ -1,1 +1,18 @@
-> *APP v0.1.0 — Draft specification stewarded by Crittora*
+site_name: Agent Permission Protocol
+site_description: "APP v0.1.0 — Draft specification stewarded by Crittora"
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+
+extra:
+  app_version: v0.1.0
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Changelog: changelog.md
+  - Contributing: contributing.md
+  - License: license.md
