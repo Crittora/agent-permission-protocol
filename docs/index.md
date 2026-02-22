@@ -133,3 +133,7 @@ It is:
 **Who authorized this action — and under what constraints — at the moment it executed?**
 
 The Agent Permission Protocol exists to make that question answerable by design.
+
+---
+
+_Stewarded by Crittora._
