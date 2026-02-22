@@ -23,6 +23,8 @@ As a result, systems may appear compliant while authority silently expands over 
 
 This failure mode is difficult to detect, difficult to audit, and difficult to reverse.
 
+Any agent system that permits external action or tool invocation without presenting a verifiable permission policy at execution time is operating with ambient authority.
+
 ---
 
 ## Core principle
@@ -33,7 +35,8 @@ Capability alone is not authorization.
 Access alone is not intent.  
 Policy alone does not enforce invariants.
 
-The Agent Permission Protocol formalizes authority as a first-class object that must be validated immediately before an agent action is permitted to execute.
+The Agent Permission Protocol formalizes authority as a first-class object that must be validated immediately before an agent action is permitted to execute.  
+Authority is enforced using cryptographically verifiable permission policies, not model compliance or implicit tool access.
 
 ---
 
@@ -71,6 +74,8 @@ The protocol is intentionally minimal. Its purpose is to define an invariant enf
 Frameworks describe behavior.  
 Policies document intent.  
 Protocols define invariants.
+
+APP enforces a separation between intelligence (what an agent proposes) and authority (what an agent is permitted to execute), enforced outside the model.
 
 Agentic systems operate at machine speed, across systems, and without continuous human oversight. In such environments, authority must be governed by rules that are deterministic, enforceable, composable, and independent of model behavior.
 
