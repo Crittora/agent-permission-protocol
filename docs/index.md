@@ -141,4 +141,4 @@ The Agent Permission Protocol exists to make that question answerable by design.
 
 ---
 
-_Stewarded by Crittora._
+_Stewarded by [Crittora](https://www.crittora.com/)._
