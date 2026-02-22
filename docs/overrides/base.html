@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="description" content="{{ config.site_description }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ config.site_name }}">
+  <meta property="og:description" content="{{ config.site_description }}">
+  {% if config.extra.site_url %}
+    <meta property="og:url" content="{{ config.extra.site_url }}">
+  {% endif %}
+  {% if config.extra.og_image %}
+    <meta property="og:image" content="{{ config.extra.og_image }}">
+  {% endif %}
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "{{ config.extra.org_url }}#organization",
+          "name": "{{ config.extra.org_name }}",
+          "url": "{{ config.extra.org_url }}"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ config.extra.site_url }}#website",
+          "name": "{{ config.site_name }}",
+          "url": "{{ config.extra.site_url }}",
+          "description": "{{ config.site_description }}",
+          "publisher": {
+            "@id": "{{ config.extra.org_url }}#organization"
+          }
+        }
+      ]
+    }
+  </script>
+{% endblock %}

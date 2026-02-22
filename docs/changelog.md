@@ -1,3 +1,7 @@
+---
+description: "Changelog for the Agent Permission Protocol (APP), including versions, status, and semantic updates."
+---
+
 # Changelog
 
 All notable changes to the Agent Permission Protocol (APP) are documented in this file.

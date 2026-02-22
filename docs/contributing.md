@@ -1,3 +1,7 @@
+---
+description: "Contribution guidelines for the Agent Permission Protocol (APP), including scope, process, and editorial authority."
+---
+
 # Contributing to the Agent Permission Protocol
 
 The Agent Permission Protocol (APP) is a public specification stewarded by Crittora.

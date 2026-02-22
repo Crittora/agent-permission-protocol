@@ -9,3 +9,66 @@
   </div>
   {{ super() }}
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% set page_url = page.canonical_url or (config.extra.site_url ~ '/' ~ page.url) %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "{{ page_url }}#webpage",
+      "name": "{{ page.title }}",
+      "url": "{{ page_url }}",
+      "description": "{{ page.meta.description or config.site_description }}",
+      "isPartOf": {
+        "@id": "{{ config.extra.site_url }}#website"
+      },
+      "publisher": {
+        "@id": "{{ config.extra.org_url }}#organization"
+      }
+    }
+  </script>
+  {% if page and page.title == "Agent Permission Protocol (APP)" %}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is the Agent Permission Protocol?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Agent Permission Protocol (APP) is a public specification that requires explicit, bounded, and verifiable permissions at execution time for agent actions."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What problem does APP solve?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "It prevents ambient authority by requiring a permission policy to be validated immediately before an agent executes an action."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is APP a framework or an implementation?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. APP is a minimal protocol that defines enforcement invariants; it does not provide tooling or orchestration."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who maintains APP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "APP is stewarded by Crittora."
+            }
+          }
+        ]
+      }
+    </script>
+  {% endif %}
+{% endblock %}

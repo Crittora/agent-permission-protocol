@@ -1,5 +1,5 @@
 site_name: Agent Permission Protocol
-site_description: "APP v0.1.0 — Draft specification stewarded by Crittora"
+site_description: "Agent Permission Protocol (APP): a public specification for explicit, bounded, and verifiable execution-time authority in agentic systems."
 
 theme:
   name: material
@@ -7,6 +7,10 @@ theme:
 
 extra:
   app_version: v0.1.0
+  site_url: https://www.crittora.com/app
+  org_name: Crittora
+  org_url: https://www.crittora.com/
+  og_image: https://www.crittora.com/app/og.png
 
 extra_css:
   - stylesheets/extra.css
