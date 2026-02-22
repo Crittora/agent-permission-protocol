@@ -1,0 +1,8 @@
+.md-header,
+.md-tabs {
+  display: none;
+}
+
+.md-content {
+  max-width: 900px;
+}

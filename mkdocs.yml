@@ -5,6 +5,9 @@ site_url: https://agentpermissionprotocol.com
 repo_name: crittora/agent-permission-protocol
 repo_url: https://github.com/crittora/agent-permission-protocol
 
+extra_css:
+  - stylesheets/extra.css
+
 nav:
   - Overview: index.md
   - Changelog: changelog.md
