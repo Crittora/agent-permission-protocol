@@ -1,16 +1,21 @@
 {% extends "base.html" %}
 
+{% block htmltitle %}
+  {% if page and page.is_homepage %}
+    <title>{{ config.site_name }}</title>
+  {% else %}
+    <title>{{ page.title }} | {{ config.site_name }}</title>
+  {% endif %}
+{% endblock %}
+
 {% block extrahead %}
   {{ super() }}
   <meta name="description" content="{{ config.site_description }}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="{{ config.site_name }}">
   <meta property="og:description" content="{{ config.site_description }}">
-  {% if config.extra.site_url %}
-    <meta property="og:url" content="{{ config.extra.site_url }}">
-  {% endif %}
-  {% if config.extra.og_image %}
-    <meta property="og:image" content="{{ config.extra.og_image }}">
+  {% if config.site_url %}
+    <meta property="og:url" content="{{ config.site_url }}">
   {% endif %}
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">
@@ -25,9 +30,9 @@
         },
         {
           "@type": "WebSite",
-          "@id": "{{ config.extra.site_url }}#website",
+          "@id": "{{ config.site_url }}#website",
           "name": "{{ config.site_name }}",
-          "url": "{{ config.extra.site_url }}",
+          "url": "{{ config.site_url }}",
           "description": "{{ config.site_description }}",
           "publisher": {
             "@id": "{{ config.extra.org_url }}#organization"

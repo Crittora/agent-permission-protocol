@@ -12,7 +12,7 @@
 
 {% block scripts %}
   {{ super() }}
-  {% set page_url = page.canonical_url or (config.extra.site_url ~ '/' ~ page.url) %}
+  {% set page_url = page.canonical_url or (config.site_url ~ '/' ~ page.url) %}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -29,7 +29,7 @@
       }
     }
   </script>
-  {% if page and page.title == "Agent Permission Protocol (APP)" %}
+  {% if page and page.url == "faq/" %}
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -37,34 +37,26 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "What is the Agent Permission Protocol?",
+            "name": "What is the Agent Permission Protocol (APP)?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The Agent Permission Protocol (APP) is a public specification that requires explicit, bounded, and verifiable permissions at execution time for agent actions."
+              "text": "The Agent Permission Protocol (APP) is a protocol that requires explicit, cryptographically verifiable permission policies to gate agent execution at runtime."
             }
           },
           {
             "@type": "Question",
-            "name": "What problem does APP solve?",
+            "name": "What is execution-time authority?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "It prevents ambient authority by requiring a permission policy to be validated immediately before an agent executes an action."
+              "text": "Execution-time authority is authorization that is validated immediately before an agent action occurs. Under APP, no action is permitted unless a valid permission policy is verified at execution."
             }
           },
           {
             "@type": "Question",
-            "name": "Is APP a framework or an implementation?",
+            "name": "What is ambient authority in agentic systems?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. APP is a minimal protocol that defines enforcement invariants; it does not provide tooling or orchestration."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Who maintains APP?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "APP is stewarded by Crittora."
+              "text": "Ambient authority occurs when agents inherit permissions implicitly through tool availability or credentials rather than explicit authorization. APP eliminates ambient authority by requiring sealed permission policies."
             }
           }
         ]

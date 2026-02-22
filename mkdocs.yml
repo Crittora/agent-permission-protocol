@@ -1,5 +1,6 @@
-site_name: Agent Permission Protocol
-site_description: "Agent Permission Protocol (APP): a public specification for explicit, bounded, and verifiable execution-time authority in agentic systems."
+site_name: "Agent Permission Protocol (APP): Execution-Time Authority for AI Agents"
+site_description: "The Agent Permission Protocol (APP) defines explicit, cryptographically verifiable authority for AI agent actions, enforced at execution time."
+site_url: https://www.agentpermissionprotocol.com
 
 theme:
   name: material
@@ -7,16 +8,14 @@ theme:
 
 extra:
   app_version: v0.1.0
-  site_url: https://www.crittora.com/app
   org_name: Crittora
   org_url: https://www.crittora.com/
-  og_image: https://www.crittora.com/app/og.png
 
 extra_css:
   - stylesheets/extra.css
 
 nav:
-  - Home: index.md
+  - Overview: index.md
+  - FAQ: faq.md
+  - Versioning: versioning.md
   - Changelog: changelog.md
-  - Contributing: contributing.md
-  - License: license.md

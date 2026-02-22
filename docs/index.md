@@ -4,7 +4,7 @@ description: "Agent Permission Protocol (APP) is a public specification for expl
 
 # Agent Permission Protocol (APP)
 
-The Agent Permission Protocol (APP) is a public specification defining a minimal, enforceable model for execution-time authority in agentic systems.
+The Agent Permission Protocol (APP) is a protocol that requires explicit, cryptographically verifiable permission policies to gate agent execution at runtime.
 
 As AI systems increasingly act through autonomous agents—invoking tools, modifying systems, and triggering irreversible outcomes—existing governance, policy, and access-control models have proven insufficient. In most architectures today, authority is inferred from access rather than explicitly validated at the moment an action executes.
 
@@ -174,47 +174,3 @@ The Agent Permission Protocol exists to make that question answerable by design.
 ---
 
 _Stewarded by [Crittora](https://www.crittora.com/)._
-
----
-
-## FAQ
-
-**What is the Agent Permission Protocol?**  
-The Agent Permission Protocol (APP) is a public specification that requires explicit, bounded, and verifiable permissions at execution time for agent actions.
-
-**What problem does APP solve?**  
-It prevents ambient authority by requiring a permission policy to be validated immediately before an agent executes an action.
-
-**Is APP a framework or an implementation?**  
-No. APP is a minimal protocol that defines enforcement invariants; it does not provide tooling or orchestration.
-
-**Who maintains APP?**  
-APP is stewarded by [Crittora](https://www.crittora.com/).
-
-**Where is the official spec?**  
-The canonical specification is the APP whitepaper listed above.
-
-**How does APP differ from IAM or RBAC?**  
-IAM and RBAC assign access; APP enforces execution-time authority with explicit, bounded permissions that must be validated immediately before an action runs.
-
-**Is APP compatible with existing agent frameworks?**  
-Yes. APP is a protocol layer that can sit alongside existing orchestration and tool stacks.
-
-**How would a system adopt APP?**  
-Adoption starts by representing authority as a permission object, validating it at execution time, and enforcing revocation semantics that fail closed.
-
----
-
-## Glossary
-
-**Agentic system**  
-A system in which an agent can invoke tools or take external actions.
-
-**Ambient authority**  
-Permission inferred from access or credentials rather than validated at execution time.
-
-**Permission policy**  
-A cryptographically verifiable object that defines scope, time bounds, and predicates for an action.
-
-**Execution-time validation**  
-The act of verifying a permission policy immediately before an action executes.
