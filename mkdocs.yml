@@ -12,7 +12,22 @@ nav:
   - License: license.md
 
 theme:
-  name: readthedocs
+  name: material
+  features:
+    - navigation.sections
+    - toc.integrate
+  palette:
+    scheme: default
+    primary: white
+    accent: black
+  font: false
+  logo: null
+  favicon: null
+
+extra:
+  generator: false
+
+edit_uri: ""
 
 markdown_extensions:
   - toc:
