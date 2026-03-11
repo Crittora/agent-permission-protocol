@@ -117,10 +117,10 @@ APP exists to provide that invariant layer.
 
 ## Status
 
-- Current version: **v0.1**
+- Current version: **v0.2.0**
 - Status: **Draft / Public Review**
 
-The protocol is published as a public specification and is versioned to enable precise reference and critique. Changes between versions are documented to preserve semantic stability.
+`v0.2.0` is the first implementable draft. It formalizes the permission policy fields, deterministic capability resolution, ephemeral execution surfaces, bounded delegation, and release semantics needed for interoperable enforcement.
 
 ---
 
@@ -139,6 +139,8 @@ The protocol is intended to be examined, challenged, and implemented independent
 The authoritative specification of the Agent Permission Protocol is published in the accompanying whitepaper:
 
 **https://www.crittora.com/app/whitepaper**
+
+This repository mirrors the released public version and changelog. In the event of wording divergence, the whitepaper is authoritative.
 
 ---
 

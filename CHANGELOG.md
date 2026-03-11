@@ -6,6 +6,37 @@ The format of this changelog is intentionally explicit. The protocol is versione
 
 ---
 
+## [0.2.0] — Implementable draft
+
+**Status:** Draft / Public Review
+
+This release advances APP from a foundational draft to an implementable protocol draft.
+
+### Added
+
+- Formal permission policy field semantics including issuer, subject, audience, intent, scope, issuance time, activation time, and expiration
+- Deterministic verifier algorithm with explicit fail-closed validation order
+- Capability resolution semantics that map abstract authority to allowed operations
+- Ephemeral execution surfaces derived from policy rather than pre-mounted tools
+- Delegation controls for bounded multi-agent authority propagation
+- Conformance classes for issuer, verifier, and executor responsibilities
+- Minimum audit evidence model for authorization decisions
+- Release semantics clarifying the meaning of patch, minor, and major protocol versions
+
+### Clarifications
+
+- The canonical whitepaper is the authoritative publication surface; this repository is the public release mirror
+- Scope is an allowlist-derived capability set, not an inferred permission universe
+- Predicates, limits, and replay controls are part of execution-time authorization semantics, not optional documentation hints
+- Executors may not widen authority beyond the verifier-derived allowlist
+
+### Notes
+
+- `v0.2.0` is intended to be the first version that independent teams can implement against with materially similar verifier behavior
+- Backward compatibility remains conservative and will continue to be evaluated as a protocol property
+
+---
+
 ## [0.1.0] — Initial draft
 
 **Status:** Draft / Public Review
