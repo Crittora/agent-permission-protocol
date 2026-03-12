@@ -27,6 +27,7 @@ extra_javascript:
 
 nav:
   - Overview: index.md
+  - Whitepaper: whitepaper.md
   - FAQ: faq.md
   - Versioning: versioning.md
   - Changelog: changelog.md

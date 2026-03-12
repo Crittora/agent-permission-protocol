@@ -256,7 +256,7 @@ The authoritative specification of the Agent Permission Protocol is published in
 
 **https://www.crittora.com/app/whitepaper**
 
-This repository mirrors the released public version and changelog. In the event of wording divergence, the whitepaper is authoritative.
+This repository mirrors the released public version and changelog. The full mirrored whitepaper is also available on this site at [Whitepaper](whitepaper.md). In the event of wording divergence, the whitepaper at `crittora.com` is authoritative.
 
 ---
 
