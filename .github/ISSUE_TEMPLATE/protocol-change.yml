@@ -1,0 +1,64 @@
+name: Protocol change
+description: Propose a normative or non-normative change to APP semantics, conformance, or structure.
+title: "[Protocol Change]: "
+labels:
+  - protocol-change
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: State the proposed change precisely.
+      placeholder: Describe the change in one or two paragraphs.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or ambiguity
+      description: Explain the current failure mode, ambiguity, inconsistency, or limitation.
+      placeholder: What is wrong or underspecified today?
+    validations:
+      required: true
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change type
+      options:
+        - Normative
+        - Non-normative
+        - Unclear / needs review
+    validations:
+      required: true
+  - type: textarea
+    id: affected_sections
+    attributes:
+      label: Affected sections
+      description: List the relevant sections, figures, or conformance language.
+      placeholder: Section 6, Section 7.4, Figure 4, verifier checklist
+    validations:
+      required: true
+  - type: textarea
+    id: interoperability
+    attributes:
+      label: Interoperability and conformance impact
+      description: Explain whether this would change verifier behavior, issuer behavior, executor behavior, or compatibility.
+      placeholder: Would current implementations become non-conformant? Would behavior diverge across runtimes?
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security impact
+      description: Describe security upside, new risks, downgrade risks, or ambiguity introduced by the proposal.
+      placeholder: Explain the security effect of accepting or rejecting this change.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal_text
+    attributes:
+      label: Proposed wording or semantic rule
+      description: Provide suggested protocol language or a precise semantic rule when possible.
+      placeholder: Include the exact text or algorithm change you want considered.
+    validations:
+      required: true

@@ -8,6 +8,9 @@ The Agent Permission Protocol (APP) is a public specification stewarded by Critt
 
 This repository exists to define, refine, and preserve a minimal set of invariants for execution-time authority in agentic systems. Contributions are welcome in the form of critique, clarification, and proposed changes, provided they advance the protocol’s clarity, correctness, or enforceability.
 
+For governance, canonical publication rules, and change classification, see
+the repository `GOVERNANCE.md`.
+
 ---
 
 ## Scope of contributions
@@ -29,6 +32,11 @@ Contributions should focus on **protocol semantics**, not on implementation pref
 ### Issues
 
 Feedback and discussion should begin as GitHub Issues.
+
+Use the issue templates when possible:
+
+- `Protocol change` for semantic or conformance proposals
+- `Clarification request` for ambiguity, inconsistency, or unclear wording
 
 When opening an issue:
 
@@ -53,11 +61,14 @@ Pull requests may be submitted for:
 - Text clarifications
 - Corrections
 - Structural improvements
+- Narrowly scoped protocol changes with clear rationale
 
 Before submitting a pull request:
 
 - Open an issue describing the proposed change
 - Explain the rationale and expected impact
+- State whether the change is normative or non-normative
+- Describe interoperability and security impact
 - Keep changes narrowly scoped
 
 Pull requests may be accepted, modified, or declined at the steward’s discretion.
@@ -86,6 +97,9 @@ The Agent Permission Protocol is versioned.
 - Substantive semantic changes will result in a new version
 - Clarifications that do not alter semantics may be included within a version
 - All changes are documented in the `CHANGELOG.md`
+
+See the repository `GOVERNANCE.md` for release discipline and version
+classification.
 
 Backward compatibility is considered a protocol property and is treated conservatively.
 

@@ -95,6 +95,9 @@ Stewardship implies maintenance, versioning, and editorial responsibility. It do
 
 The protocol is intended to be examined, challenged, and implemented independently.
 
+Contribution and governance details are defined in `CONTRIBUTING.md` and
+`GOVERNANCE.md`.
+
 ---
 
 ## Canonical specification

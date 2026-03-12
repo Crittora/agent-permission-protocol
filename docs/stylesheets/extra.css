@@ -7,6 +7,22 @@
   max-width: 900px;
 }
 
+.mermaid {
+  background: #0b1220;
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 16px;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.diagram-caption {
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 0.92rem;
+  margin-top: -0.35rem;
+  text-align: center;
+}
+
 .app-header {
   align-items: baseline;
   display: flex;

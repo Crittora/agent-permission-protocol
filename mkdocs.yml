@@ -6,6 +6,13 @@ theme:
   name: material
   custom_dir: docs/overrides
 
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
 extra:
   app_version: v0.2.0
   org_name: Crittora
@@ -13,6 +20,10 @@ extra:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
+  - javascripts/mermaid.js
 
 nav:
   - Overview: index.md

@@ -1,0 +1,36 @@
+name: Clarification request
+description: Report ambiguity, inconsistency, or unclear wording in the APP specification.
+title: "[Clarification]: "
+labels:
+  - clarification
+body:
+  - type: textarea
+    id: location
+    attributes:
+      label: Section or location
+      description: Identify the specific section, paragraph, figure, or sentence.
+      placeholder: Section 7.1 capability resolution, Figure 3, README wording
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: What is unclear
+      description: Describe the ambiguity or inconsistency as precisely as possible.
+      placeholder: What interpretation is unclear or contradictory?
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Why it matters
+      description: Explain whether the ambiguity affects implementation, conformance, threat modeling, or editorial clarity.
+      placeholder: Describe the practical consequence of the ambiguity.
+    validations:
+      required: true
+  - type: textarea
+    id: suggested_fix
+    attributes:
+      label: Suggested clarification
+      description: Optional proposed wording or edit.
+      placeholder: Provide replacement wording if you have it.

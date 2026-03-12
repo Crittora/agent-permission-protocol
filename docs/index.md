@@ -115,6 +115,122 @@ APP exists to provide that invariant layer.
 
 ---
 
+## Protocol diagrams
+
+The diagrams below summarize the current `v0.2.0` public draft and align with the canonical whitepaper.
+
+### Execution flow
+
+```mermaid
+flowchart LR
+  intent["Task / intent"]
+  issue["Issue permission policy<br/>issuer"]
+  seal["Seal policy<br/>sign then encrypt"]
+  present["Present sealed policy<br/>presenter"]
+  verify["Verify policy<br/>verifier"]
+  valid{"Policy valid?"}
+  resolve["Resolve policy capabilities"]
+  surface["Construct execution capability surface"]
+  execute["Execute within authorized scope<br/>executor"]
+  audit["Emit audit record"]
+  deny["Deny execution<br/>fail closed"]
+
+  intent --> issue --> seal --> present --> verify --> valid
+  valid -->|Yes| resolve --> surface --> execute --> audit
+  valid -->|No| deny
+```
+
+<p class="diagram-caption">Figure 1. No agent action or tool invocation is permitted unless a sealed permission policy is presented and verified before execution.</p>
+
+### Separation of intelligence and authority
+
+```mermaid
+flowchart LR
+  subgraph model["Model / intelligence"]
+    prompt["Prompt / context<br/>non-authoritative"]
+    propose["Model proposes action"]
+    prompt --> propose
+  end
+
+  subgraph authority["Authority / execution"]
+    verify["Verify permission policy"]
+    valid{"Policy valid?"}
+    resolve["Resolve policy capabilities"]
+    surface["Construct execution capability surface"]
+    execute["Execute within scope"]
+    deny["Deny execution<br/>fail closed"]
+
+    verify --> valid
+    valid -->|Yes| resolve --> surface --> execute
+    valid -->|No| deny
+  end
+
+  propose -->|"sealed permission policy required"| verify
+```
+
+<p class="diagram-caption">Figure 2. The model may propose actions, but authority is enforced outside the model through policy verification and capability-derived execution control.</p>
+
+### Verifier pipeline
+
+```mermaid
+flowchart TD
+  step1["1. Decrypt permission policy"]
+  step2["2. Verify cryptographic signature"]
+  step3["3. Parse policy and validate required fields"]
+  step4["4. Validate policy_version, issued_at, not_before, and expires_at"]
+  step5["5. Enforce replay protection when present"]
+  step6["6. Enforce audience binding"]
+  step7["7. Resolve policy capabilities using verifier registry"]
+  step8["8. Construct execution capability surface"]
+  step9["9. Apply runtime limits and constraints"]
+  step10["10. Begin execution"]
+  deny["Any failure -> deny execution"]
+
+  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10
+  step1 -. failure .-> deny
+  step2 -. failure .-> deny
+  step3 -. failure .-> deny
+  step4 -. failure .-> deny
+  step5 -. failure .-> deny
+  step6 -. failure .-> deny
+  step7 -. failure .-> deny
+  step8 -. failure .-> deny
+  step9 -. failure .-> deny
+```
+
+<p class="diagram-caption">Figure 3. Validation is deterministic and fail-closed. Capability resolution and execution surface construction occur before execution begins.</p>
+
+### Sequence diagram
+
+```mermaid
+sequenceDiagram
+  participant I as Issuer
+  participant P as Presenter
+  participant V as Verifier
+  participant E as Executor
+  participant T as Tool
+
+  I->>I: Create permission policy
+  I->>I: Sign then encrypt
+  I->>P: Deliver sealed permission policy
+  P->>V: Present sealed permission policy
+  V->>V: Decrypt and verify signature
+  V->>V: Validate fields, time bounds, audience, replay, limits
+  V->>V: Resolve capabilities
+  V->>E: Construct execution capability surface
+  E->>T: Execute within authorized scope
+  T-->>E: Result
+  E-->>V: Execution outcome
+  V->>V: Emit audit record
+  alt Verification fails
+    V-->>P: Deny execution
+  end
+```
+
+<p class="diagram-caption">Figure 4. Issuer, presenter, verifier, executor, and tool interactions show sealing, presentation, verification, execution gating, and audit emission.</p>
+
+---
+
 ## Status
 
 - Current version: **v0.2.0**
