@@ -71,9 +71,10 @@
 }
 
 .mermaid {
-  background: #0b1220;
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
   margin: 0;
   overflow-x: auto;
   padding: 1rem;
