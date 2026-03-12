@@ -31,3 +31,5 @@ nav:
   - FAQ: faq.md
   - Versioning: versioning.md
   - Changelog: changelog.md
+  - Contributing: contributing.md
+  - License: license.md

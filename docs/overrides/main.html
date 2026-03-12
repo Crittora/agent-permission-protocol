@@ -1,5 +1,49 @@
 {% extends "base.html" %}
 
+{% block htmltitle %}
+  {% if page and page.is_homepage %}
+    <title>{{ config.site_name }}</title>
+  {% else %}
+    <title>{{ page.title }} | {{ config.site_name }}</title>
+  {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="description" content="{{ page.meta.description or config.site_description }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ page.title if page else config.site_name }}">
+  <meta property="og:description" content="{{ page.meta.description or config.site_description }}">
+  {% if config.site_url %}
+    {% set page_url = page.canonical_url or (config.site_url ~ '/' ~ page.url) %}
+    <meta property="og:url" content="{{ page_url }}">
+  {% endif %}
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "{{ config.extra.org_url }}#organization",
+          "name": "{{ config.extra.org_name }}",
+          "url": "{{ config.extra.org_url }}"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ config.site_url }}#website",
+          "name": "{{ config.site_name }}",
+          "url": "{{ config.site_url }}",
+          "description": "{{ config.site_description }}",
+          "publisher": {
+            "@id": "{{ config.extra.org_url }}#organization"
+          }
+        }
+      ]
+    }
+  </script>
+{% endblock %}
+
 {% block content %}
   <div class="app-header">
     <div class="app-header__title">{{ config.site_name }}</div>
@@ -12,7 +56,11 @@
 
 {% block scripts %}
   {{ super() }}
-  {% set page_url = page.canonical_url or (config.site_url ~ '/' ~ page.url) %}
+  {% if config.site_url %}
+    {% set page_url = page.canonical_url or (config.site_url ~ '/' ~ page.url) %}
+  {% else %}
+    {% set page_url = page.url %}
+  {% endif %}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -22,7 +70,7 @@
       "url": "{{ page_url }}",
       "description": "{{ page.meta.description or config.site_description }}",
       "isPartOf": {
-        "@id": "{{ config.extra.site_url }}#website"
+        "@id": "{{ config.site_url }}#website"
       },
       "publisher": {
         "@id": "{{ config.extra.org_url }}#organization"
