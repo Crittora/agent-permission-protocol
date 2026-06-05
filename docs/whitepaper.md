@@ -1,10 +1,10 @@
 ---
-description: "Full mirrored whitepaper for Agent Permission Protocol (APP) v0.2.0. The canonical publication remains crittora.com/app/whitepaper."
+description: "Full mirrored whitepaper for Agent Permission Protocol (APP) v0.3.0. The canonical publication remains crittora.com/app/whitepaper."
 ---
 
 # Agent Permission Protocol (APP) Whitepaper
 
-> This page mirrors the full APP v0.2.0 whitepaper for public reading and distribution.
+> This page mirrors the full APP v0.3.0 whitepaper for public reading and distribution.
 > The canonical publication remains **https://www.crittora.com/app/whitepaper**.
 > If wording ever diverges, the canonical publication controls.
 
@@ -45,9 +45,11 @@ transport and OAuth standardizes delegated identity, APP standardizes
 executable authority. Without an explicit authority layer, autonomous agents
 cannot be made safe at scale.
 
-APP v2 strengthens the protocol by defining deterministic capability
-resolution, policy-derived execution surfaces, and explicit delegation rules
-for multi-agent workflows.
+APP v0.3.0 strengthens the protocol by normalizing a typed `limits`
+schema, adding a cryptographic `derivation_chain` for delegated policies,
+and defining a normative revocation interface with `online`, `cached`, and
+`stapled` modes so that in-flight authority can be revoked, checked, and
+proven in audit.
 
 ## Abstract
 
@@ -74,11 +76,27 @@ Figures are illustrative and non-normative unless stated otherwise.
 
 ## Status and document scope
 
-- Version: v0.2.0
+- Version: v0.3.0
 - Status: Draft / Public Review
-- Release date: 2026-03-11
+- Release date: 2026-05-21
+- Previous version: v0.2.0 (2026-03-11)
 - Canonical publication: https://www.crittora.com/app/whitepaper
 - Public mirror and changelog: https://www.agentpermissionprotocol.com
+
+### v0.3.0 changes (summary)
+
+- §6: `revocation_endpoint` is REQUIRED in every sealed policy
+- §6.1 (new): normative schema for `limits` with typed primitives
+- §7: verifier pipeline expanded from 10 to 12 ordered steps (added revocation
+  and derivation chain checks)
+- §7.4: derived policies MUST carry cryptographic `derivation_chain`
+- §7.5 (new): revocation discovery, query interface, freshness, and
+  `revocation_mode` semantics
+- §8: audit record SHOULD include the full derivation chain and the
+  revocation check outcome
+- §13: verifier compliance checklist updated to reflect revocation,
+  derivation chain, and typed limits
+- §18 (new): v0.4.0 roadmap and `APP-Federation-1` companion spec
 
 The whitepaper is the canonical publication of APP. Public mirrors, summaries,
 and implementation notes MUST NOT override normative protocol language
@@ -290,7 +308,7 @@ executor may self-attest authority without an equivalent verifier function.
 
 Permission policies are machine-readable documents with these REQUIRED fields:
 
-- `type`: protocol artifact identifier. For APP v0.2.0, this MUST be
+- `type`: protocol artifact identifier. For APP v0.3.0, this MUST be
   `app_permission_policy`.
 - `policy_version`: semantic version of the protocol profile used to interpret
   the policy.
@@ -304,6 +322,8 @@ Permission policies are machine-readable documents with these REQUIRED fields:
 - `issued_at`: trusted issuance timestamp.
 - `not_before`: earliest instant at which the policy becomes valid.
 - `expires_at`: latest instant at which the policy remains valid.
+- `revocation_endpoint`: URI from which revocation status for the policy can
+  be queried by a verifier (REQUIRED in v0.3.0).
 
 The `scope` field MUST be an allowlist. Each scope entry SHOULD identify:
 
@@ -317,8 +337,14 @@ Optional fields include:
 - `nonce`: single-use or replay-resistant token
 - `predicates`: runtime conditions that MUST evaluate true at execution
 - `limits`: quantitative or environmental constraints such as call count,
-  token budget, destination, or network zone
-- `delegation`: bounded re-delegation information when supported
+  token budget, destination, network zone, or time-of-day (see §6.1 for the
+  normative typed-primitive schema)
+- `strict_limits`: when `true`, unknown or unsupported limit types MUST result
+  in denial
+- `delegation`: bounded re-delegation information when supported (see §7.4)
+- `derivation_chain`: cryptographic lineage to the parent policy (see §7.4)
+- `revocation_mode`: declared revocation mode — `online`, `cached`, or
+  `stapled` (see §7.5)
 - `metering`: optional metadata for accounting or billing
 - `evidence_ref`: issuer-side reference to approval context or business record
 
@@ -331,7 +357,7 @@ See Figure 3 for the policy structure and sealing requirements.
 
 ```mermaid
 flowchart LR
-  policy["Permission policy (plaintext)<br/>Required: type, policy_version, policy_id, issuer, subject, audience, intent, scope, issued_at, not_before, expires_at<br/>Optional: nonce, predicates, limits, delegation, metering, evidence_ref"]
+  policy["Permission policy (plaintext)<br/>Required: type, policy_version, policy_id, issuer, subject, audience, intent, scope, issued_at, not_before, expires_at, revocation_endpoint<br/>Optional: nonce, predicates, limits, strict_limits, delegation, derivation_chain, revocation_mode, metering, evidence_ref"]
   sign["Sign<br/>Ed25519"]
   encrypt["Encrypt signed payload<br/>X25519 + AEAD"]
   sealed["Sealed permission policy<br/>ciphertext"]
@@ -341,7 +367,59 @@ flowchart LR
   policy -. plaintext at execution boundary .-> deny
 ```
 
-_Figure 3. Permission policy structure. A permission policy encodes intent, audience, scope, and expiration, and is sealed via sign-then-encrypt._
+_Figure 3. Permission policy structure. A permission policy encodes intent, audience, scope, expiration, and a revocation endpoint, and is sealed via sign-then-encrypt._
+
+## 6.1 Limits schema (normative)
+
+The `limits` field, when present, MUST be expressed using the typed primitives
+defined below. Each primitive is a discrete limit type with a fixed shape.
+Verifiers MUST evaluate only the limit types they recognize; unknown limit
+types MUST be ignored unless `strict_limits` is `true`, in which case they
+MUST cause denial.
+
+```yaml
+limits:
+  call_count:
+    max: 50
+    scope: per_capability        # per_capability | per_policy | per_subject
+    counter_ref: ctr_abc123
+
+  token_budget:
+    max_input_tokens: 10000
+    max_output_tokens: 2000
+    scope: per_policy
+
+  rate:
+    max_per_minute: 10
+    max_per_hour: 100
+
+  data_volume:
+    max_bytes_read: 10485760
+    max_bytes_written: 1048576
+
+  network_zone:
+    allowed: [internal, partner-dmz]
+    denied: [public-internet]
+
+  time_of_day:
+    allowed_windows:
+      - tz: America/New_York
+        start: "09:00"
+        end: "17:00"
+        days: [Mon, Tue, Wed, Thu, Fri]
+```
+
+Rules:
+
+- `call_count.counter_ref` values reference a counter that MUST be updated
+  atomically; concurrent use of the same `counter_ref` MUST NOT permit
+  exceeding `max`.
+- When `strict_limits: true`, any limit type the verifier does not recognize
+  MUST result in denial.
+- `network_zone.denied` takes precedence over `network_zone.allowed` when both
+  are present.
+- `time_of_day.allowed_windows` is interpreted in the named `tz`; absence of
+  a window means the limit does not restrict by time of day.
 
 ## 7. Verification and enforcement
 
@@ -351,13 +429,16 @@ perform the following steps in order:
 1. Decrypt the permission policy.
 2. Verify the cryptographic signature.
 3. Parse the policy structure and validate required fields.
-4. Validate policy version and expiration.
+4. Validate `policy_version`, `issued_at`, `not_before`, and `expires_at`.
 5. Enforce replay protection when present.
 6. Enforce audience binding.
-7. Resolve policy capabilities using the verifier capability registry.
-8. Construct the execution capability surface.
-9. Apply runtime limits and constraints.
-10. Begin execution.
+7. Check revocation per the policy's `revocation_mode` (see §7.5).
+8. Verify `derivation_chain` when the policy is derived (see §7.4).
+9. Resolve policy capabilities using the verifier capability registry.
+10. Construct the execution capability surface.
+11. Apply runtime limits and constraints, including the typed `limits`
+    primitives defined in §6.1.
+12. Begin execution.
 
 Any failure results in denial.
 
@@ -371,13 +452,15 @@ flowchart TD
   step4["4. Validate policy_version, issued_at, not_before, and expires_at"]
   step5["5. Enforce replay protection when present"]
   step6["6. Enforce audience binding"]
-  step7["7. Resolve policy capabilities using verifier registry"]
-  step8["8. Construct execution capability surface"]
-  step9["9. Apply runtime limits and constraints"]
-  step10["10. Begin execution"]
+  step7["7. Check revocation per revocation_mode (§7.5)"]
+  step8["8. Verify derivation_chain when policy is derived (§7.4)"]
+  step9["9. Resolve policy capabilities using verifier registry"]
+  step10["10. Construct execution capability surface"]
+  step11["11. Apply runtime limits per typed primitives (§6.1)"]
+  step12["12. Begin execution"]
   deny["Any failure -> deny execution"]
 
-  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10
+  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10 --> step11 --> step12
   step1 -. failure .-> deny
   step2 -. failure .-> deny
   step3 -. failure .-> deny
@@ -387,9 +470,11 @@ flowchart TD
   step7 -. failure .-> deny
   step8 -. failure .-> deny
   step9 -. failure .-> deny
+  step10 -. failure .-> deny
+  step11 -. failure .-> deny
 ```
 
-_Figure 4. Verifier pipeline (fail closed). Verification is deterministic and denies execution on any cryptographic, semantic, or policy validation failure._
+_Figure 4. Verifier pipeline (fail closed). Verification is deterministic and denies execution on any cryptographic, semantic, revocation, derivation, or policy validation failure. The pipeline is 12 ordered steps in v0.3.0._
 
 ## 7.1 Capability resolution
 
@@ -494,8 +579,6 @@ agents.
 Without explicit delegation rules, authority may propagate unintentionally
 across execution chains.
 
-APP v2 introduces delegation controls.
-
 Permission policies MAY include a delegation section:
 
 ```yaml
@@ -509,6 +592,7 @@ Delegation rules:
 - Authority MAY be delegated only when explicitly permitted.
 - Delegated policies MUST be derived from the parent policy.
 - Derived policies MUST NOT expand authority.
+- Delegation depth MUST be enforced by the verifier.
 
 Constraint:
 
@@ -516,10 +600,97 @@ Constraint:
 child.scope ⊆ parent.scope
 ```
 
-Delegation depth MUST be enforced by the verifier.
+When a policy is derived, it MUST carry a cryptographic `derivation_chain`
+that binds it to its parent:
+
+```yaml
+derivation_chain:
+  parent_policy_id: pol_abc123
+  parent_policy_hash: <sha256 of sealed parent policy>
+  delegation_depth: 1
+  max_depth: 2
+```
+
+The verifier MUST verify that:
+
+- `parent_policy_id` resolves to a known, still-valid policy;
+- `parent_policy_hash` matches the SHA-256 of the sealed parent policy
+  payload;
+- `delegation_depth` does not exceed the parent's `max_depth`;
+- the child's `scope` is a subset of the parent's `scope` (as above).
+
+The derivation chain makes lineage self-proving: a single audit record for a
+terminal action can reconstruct the full authorization path back to the
+original issuer.
 
 If delegation is not permitted, agents MUST NOT create derived execution
 policies.
+
+## 7.5 Revocation
+
+Every v0.3.0 sealed permission policy MUST declare a `revocation_endpoint`.
+A verifier uses this endpoint to query the live revocation status of a
+policy at execution time.
+
+### 7.5.1 Query interface
+
+Verifiers MUST query revocation status by performing a `GET` against:
+
+```text
+GET {revocation_endpoint}/{policy_id}
+```
+
+A non-revoked response has the shape:
+
+```json
+{
+  "revoked": false,
+  "reason": null,
+  "revoked_at": null
+}
+```
+
+A revoked response has the shape:
+
+```json
+{
+  "revoked": true,
+  "reason": "issuer_revoked",
+  "revoked_at": "2026-05-21T14:00:00Z"
+}
+```
+
+### 7.5.2 Revocation modes
+
+The policy MAY declare a `revocation_mode` that controls how the verifier
+interacts with the endpoint:
+
+- `online` — the verifier MUST query the endpoint for every execution.
+  This mode is RECOMMENDED for high-impact actions.
+- `cached` — the verifier MAY cache the response subject to the endpoint's
+  declared cache controls.
+- `stapled` — the issuer includes a signed, time-bounded non-revocation
+  assertion inside the sealed policy itself; the verifier does not need to
+  contact the endpoint while the assertion is fresh.
+
+When `revocation_mode` is absent, the default is `online`.
+
+### 7.5.3 Default freshness behavior
+
+A verifier MUST check revocation whenever the policy's remaining time-to-live
+(`expires_at - now`) exceeds five minutes, unless `revocation_mode` is
+`stapled` and the stapled assertion is still fresh.
+
+### 7.5.4 Failure semantics
+
+- When `revocation_mode` is `online`, failure to reach the `revocation_endpoint`
+  or to obtain a definitive response MUST result in denial.
+- When `revocation_mode` is `cached`, expired or missing cached responses MUST
+  be treated as a cache miss and refreshed from the endpoint; failure to
+  refresh MUST result in denial.
+- When `revocation_mode` is `stapled`, expired or missing stapled assertions
+  MUST be treated as a denial, OR the verifier MAY fall back to `online`
+  behavior. A policy MUST declare which fallback is permitted.
 
 ## 8. Audit evidence model
 
@@ -537,14 +708,20 @@ the minimum record SHOULD include:
 - reason code or failure class
 - derived capability set or execution handle
 - request correlation identifier
+- `derivation_chain` when the policy is derived (per §7.4)
+- revocation check outcome — including `revocation_mode`, the endpoint
+  queried, the response status, and the cache or stapled-assertion
+  freshness observed at decision time (per §7.5)
 
 The audit record MAY omit confidential policy content, but it MUST be
 sufficient to prove that a specific verifier reached a specific decision for a
-specific policy at a specific time.
+specific policy at a specific time, and — when the policy is derived — to
+reconstruct the full authorization lineage from the terminal action back to
+the originating issuer.
 
 ## 9. Conformance classes
 
-APP v0.2.0 defines three core conformance classes:
+APP v0.3.0 defines three core conformance classes:
 
 - Issuer conformance: produces well-formed policies, signs them, and binds
   policy semantics to the intended audience and time window.
@@ -714,9 +891,15 @@ An APP-compliant verifier MUST:
   clock.
 - Enforce replay rules atomically when required.
 - Enforce audience binding.
-- Evaluate predicates and limits before exposing capabilities.
+- Check revocation per the policy's `revocation_mode`; fail closed when an
+  `online` check cannot complete (see §7.5).
+- Verify `derivation_chain` including parent hash and incremented depth
+  when the policy is derived (see §7.4).
+- Evaluate predicates and limits; deny on unknown limit types when
+  `strict_limits: true` (see §6.1).
 - Expose only allowlisted tools and capabilities.
-- Emit an audit record for each authorization decision.
+- Emit an audit record for each authorization decision, including the
+  derivation chain and revocation check outcome when applicable.
 - Fail closed on ambiguity, parse errors, unsupported critical fields, or
   missing execution context.
 
@@ -724,7 +907,7 @@ An APP-compliant verifier MUST:
 
 APP uses semantic versioning for protocol publication:
 
-- Patch releases (`0.2.x`) are reserved for editorial clarification,
+- Patch releases (`0.3.x`) are reserved for editorial clarification,
   non-normative examples, or publication corrections that do not change
   conformance behavior.
 - Minor releases (`0.x.0`) may add or refine normative semantics, required
@@ -767,8 +950,84 @@ Agentic AI requires a new execution security boundary.
 APP establishes explicit, time-bound authority through cryptographically
 verifiable permission policies and deterministic runtime enforcement.
 
-APP v2 strengthens this model by introducing capability resolution,
-policy-derived execution surfaces, and delegation controls.
+APP v0.3.0 strengthens this model by introducing a typed `limits` schema,
+cryptographic `derivation_chain` lineage, a normative revocation interface
+with `online`, `cached`, and `stapled` modes, and an extended 12-step
+verifier pipeline that places revocation and derivation checks before
+capability resolution.
 
 These mechanisms ensure that agent authority remains explicit, bounded,
-portable, and auditable across platforms.
+portable, and auditable across platforms — and that the lineage of
+delegated authority is provable from a single audit record.
+
+## 18. Roadmap — v0.4.0 and beyond
+
+This section is informational. It identifies the v0.4.0 additions under
+public review and the `APP-Federation-1` companion spec. Conformance to
+v0.3.0 does not require support for any item in this section.
+
+### 18.1 Human-in-the-loop authorization (`approval_gate`) — v0.4.0
+
+```yaml
+approval_gate:
+  required: true
+  approver_role: compliance-officer
+  timeout_seconds: 3600
+  mode: async
+  approval_ref: null
+```
+
+### 18.2 Policy suspension and resume (`suspendable`) — v0.4.0
+
+```yaml
+suspendable:
+  allowed: true
+  suspend_authority:
+    - role: platform-operator
+      identity: audit.crittora.internal
+  resume_requires_approval: true
+  max_suspension_duration_seconds: 86400
+  state_ref: null
+```
+
+### 18.3 Prompt-injection input attestation (`content_integrity`) — v0.4.0 (OPTIONAL)
+
+```yaml
+content_integrity:
+  allowed_input_sources:
+    - type: signed_document
+      signer_identity: crm.internal
+  reject_unattested_input: true
+  injection_resistance_level: strict
+```
+
+### 18.4 Cross-domain trust federation (`APP-Federation-1`)
+
+```yaml
+trust_root:
+  issuer_domain: crittora.bankofexample.com
+  root_key_id: rk_abc123
+  federation_anchor: https://trust.bankofexample.com/.well-known/app-federation
+  cross_domain_allowed: true
+```
+
+### 18.5 Intentionally out of scope
+
+The following remain out of scope for APP regardless of version:
+
+- Model alignment, output verification, or behavioral control
+- Workflow business logic
+- Tool correctness or runtime safety beyond the policy-derived execution
+  surface
+
+### 18.6 Target versioning summary
+
+| Recommendation                                          | Target          |
+|---------------------------------------------------------|-----------------|
+| Normalize `limits` schema                               | v0.3.0          |
+| Revocation endpoint normalization                       | v0.3.0          |
+| Policy provenance chain (`derivation_chain`)            | v0.3.0          |
+| HITL `approval_gate`                                    | v0.4.0          |
+| Suspension and resume (`suspendable`)                   | v0.4.0          |
+| Content integrity (`content_integrity`)                 | v0.4.0 (OPTIONAL) |
+| Cross-domain trust federation                           | APP-Federation-1 |

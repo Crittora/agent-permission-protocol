@@ -117,7 +117,7 @@ APP exists to provide that invariant layer.
 
 ## Protocol diagrams
 
-The diagrams below summarize the current `v0.2.0` public draft and align with the canonical whitepaper.
+The diagrams below summarize the current `v0.3.0` public draft and align with the canonical whitepaper.
 
 ### Execution flow
 
@@ -180,13 +180,15 @@ flowchart TD
   step4["4. Validate policy_version, issued_at, not_before, and expires_at"]
   step5["5. Enforce replay protection when present"]
   step6["6. Enforce audience binding"]
-  step7["7. Resolve policy capabilities using verifier registry"]
-  step8["8. Construct execution capability surface"]
-  step9["9. Apply runtime limits and constraints"]
-  step10["10. Begin execution"]
+  step7["7. Check revocation per revocation_mode (§7.5)"]
+  step8["8. Verify derivation_chain when policy is derived (§7.4)"]
+  step9["9. Resolve policy capabilities using verifier registry"]
+  step10["10. Construct execution capability surface"]
+  step11["11. Apply runtime limits per typed primitives (§6.1)"]
+  step12["12. Begin execution"]
   deny["Any failure -> deny execution"]
 
-  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10
+  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10 --> step11 --> step12
   step1 -. failure .-> deny
   step2 -. failure .-> deny
   step3 -. failure .-> deny
@@ -196,9 +198,11 @@ flowchart TD
   step7 -. failure .-> deny
   step8 -. failure .-> deny
   step9 -. failure .-> deny
+  step10 -. failure .-> deny
+  step11 -. failure .-> deny
 ```
 
-<p class="diagram-caption">Figure 3. Validation is deterministic and fail-closed. Capability resolution and execution surface construction occur before execution begins.</p>
+<p class="diagram-caption">Figure 3. Validation is deterministic and fail-closed. Revocation, derivation chain, capability resolution, and execution surface construction occur before execution begins. The pipeline is 12 ordered steps in v0.3.0.</p>
 
 ### Sequence diagram
 
@@ -216,6 +220,8 @@ sequenceDiagram
   P->>V: Present sealed permission policy
   V->>V: Decrypt and verify signature
   V->>V: Validate fields, time bounds, audience, replay, limits
+  V->>V: Check revocation per revocation_mode (§7.5)
+  V->>V: Verify derivation_chain when policy is derived (§7.4)
   V->>V: Resolve capabilities
   V->>E: Construct execution capability surface
   E->>T: Execute within authorized scope
@@ -233,10 +239,10 @@ sequenceDiagram
 
 ## Status
 
-- Current version: **v0.2.0**
+- Current version: **v0.3.0**
 - Status: **Draft / Public Review**
 
-`v0.2.0` is the first implementable draft. It formalizes the permission policy fields, deterministic capability resolution, ephemeral execution surfaces, bounded delegation, and release semantics needed for interoperable enforcement.
+`v0.3.0` advances the implementable draft by requiring every sealed policy to declare a `revocation_endpoint`, normalizing a typed `limits` schema, introducing a cryptographic `derivation_chain` for delegated policies, and expanding the verifier pipeline from 10 to 12 ordered steps. It also defines a normative revocation interface with `online`, `cached`, and `stapled` modes, and adds a roadmap for `approval_gate`, `suspendable`, `content_integrity`, and `APP-Federation-1`.
 
 ---
 

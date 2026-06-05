@@ -6,6 +6,63 @@ The format of this changelog is intentionally explicit. The protocol is versione
 
 ---
 
+## [0.3.0] — Revocation, derivation chain, and typed limits
+
+**Status:** Draft / Public Review
+**Release date:** 2026-05-21
+**Previous version:** v0.2.0 (2026-03-11)
+
+This release advances APP from an implementable draft to a draft that is
+implementable with explicit revocation, cryptographic delegation lineage, and
+a typed limit schema. It introduces several new required and optional policy
+fields, expands the verifier pipeline, and adds a roadmap for the next
+release.
+
+### Added
+
+- **`revocation_endpoint` REQUIRED in every sealed policy** (§6) — every
+  v0.3.0 policy must declare the URI from which a verifier can query
+  revocation status.
+- **Normative `limits` schema with typed primitives** (§6.1) — new typed
+  primitives for `call_count`, `token_budget`, `rate`, `data_volume`,
+  `network_zone`, and `time_of_day`, with optional `strict_limits` to require
+  fail-closed behavior on unknown limit types.
+- **Cryptographic `derivation_chain` for derived policies** (§7.4) — derived
+  policies must carry `parent_policy_id`, `parent_policy_hash`,
+  `delegation_depth`, and `max_depth`; the verifier must validate the parent
+  hash and depth increment.
+- **Revocation interface and modes** (§7.5) — `online`, `cached`, and
+  `stapled` modes; default freshness of five minutes; fail-closed semantics
+  for `online` checks.
+- **Expanded 12-step verifier pipeline** (§7) — adds revocation and
+  derivation chain checks before capability resolution.
+- **Audit evidence update** (§8) — audit records should include the full
+  `derivation_chain` and the revocation check outcome, sufficient to
+  reconstruct authorization lineage from a single terminal action.
+- **Updated verifier compliance checklist** (§13) — reflects revocation,
+  derivation chain, and typed limits obligations.
+- **v0.4.0 roadmap and `APP-Federation-1` companion spec** (§18) — scopes
+  `approval_gate`, `suspendable`, `content_integrity`, and cross-domain
+  trust federation.
+- **New optional policy fields** — `strict_limits`, `derivation_chain`, and
+  `revocation_mode`.
+
+### Changed
+
+- Conformance classes (§9) and the §14 versioning section refer to v0.3.0.
+- Whitepaper exec summary and §17 conclusion updated to reflect v0.3.0
+  additions.
+
+### Notes
+
+- v0.3.0 is backward-compatible at the wire level with v0.2.0 for policies
+  that do not declare `revocation_endpoint` — but such policies are NOT
+  v0.3.0 conformant and will be denied by a v0.3.0 verifier.
+- Implementers should treat the revocation endpoint as a first-class
+  issuance-time dependency, not an optional integration.
+
+---
+
 ## [0.2.0] — Implementable draft
 
 **Status:** Draft / Public Review

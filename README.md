@@ -80,10 +80,10 @@ APP exists to provide that invariant layer.
 
 ## Status
 
-- Current version: **v0.2.0**
+- Current version: **v0.3.0**
 - Status: **Draft / Public Review**
 
-`v0.2.0` is the first implementable draft. It formalizes the permission policy fields, deterministic capability resolution, ephemeral execution surfaces, bounded delegation, and release semantics needed for interoperable enforcement.
+`v0.3.0` advances the implementable draft by requiring every sealed policy to declare a `revocation_endpoint`, normalizing a typed `limits` schema, introducing a cryptographic `derivation_chain` for delegated policies, and expanding the verifier pipeline from 10 to 12 ordered steps. It also defines a normative revocation interface with `online`, `cached`, and `stapled` modes, and adds a roadmap for `approval_gate`, `suspendable`, `content_integrity`, and `APP-Federation-1`.
 
 ---
 
