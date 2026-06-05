@@ -14,6 +14,10 @@ The canonical specification of APP is the published whitepaper at:
 
 **https://www.crittora.com/app/whitepaper**
 
+The public source repository is:
+
+**https://github.com/Crittora/agent-permission-protocol**
+
 This repository is the public contribution and release mirror.
 
 If wording in this repository diverges from the canonical whitepaper, the

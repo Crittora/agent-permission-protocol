@@ -102,6 +102,10 @@ The whitepaper is the canonical publication of APP. Public mirrors, summaries,
 and implementation notes MUST NOT override normative protocol language
 published here.
 
+The public source repository for APP is hosted at:
+
+**https://github.com/Crittora/agent-permission-protocol**
+
 ## 1. Introduction
 
 ### 1.1 The rise of agentic AI

@@ -31,7 +31,10 @@ Contributions should focus on **protocol semantics**, not on implementation pref
 
 ### Issues
 
-Feedback and discussion should begin as GitHub Issues.
+Feedback and discussion should begin as GitHub Issues on the public
+source repository:
+
+**https://github.com/Crittora/agent-permission-protocol/issues**
 
 Use the issue templates when possible:
 
