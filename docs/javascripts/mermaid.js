@@ -31,8 +31,8 @@ document$.subscribe(function () {
 
     controls.appendChild(button);
     diagram.parentNode.insertBefore(shell, diagram);
-    shell.appendChild(controls);
     shell.appendChild(diagram);
+    shell.appendChild(controls);
     return shell;
   }
 

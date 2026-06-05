@@ -43,7 +43,7 @@
 .diagram-shell__controls {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .diagram-shell__toggle {
