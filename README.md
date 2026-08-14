@@ -114,6 +114,18 @@ The public source repository is hosted at:
 
 ---
 
+## Implementer assets
+
+This repository includes non-normative implementation assets for APP v0.4.0:
+
+- JSON Schemas in `schemas/`
+- YAML examples in `examples/`
+- Conformance vectors in `conformance/v0.4.0/`
+- Verifier pseudocode in `docs/verifier-algorithm.md`
+- Runtime and MCP integration guidance in `docs/integration-guide.md`
+
+---
+
 ## Intended audience
 
 This specification is written for:

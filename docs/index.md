@@ -40,6 +40,17 @@ APP defines a permission object that must be validated at execution time, so aut
 
 ---
 
+## Implementer assets
+
+APP v0.4.0 includes non-normative assets for implementers:
+
+- JSON Schemas for permission policies, approval challenges, and approval receipts.
+- YAML examples for payment approval, external email approval, derived policies, challenges, and receipts.
+- Approval receipt conformance vectors for allow and fail-closed cases.
+- A verifier algorithm page and integration guide for agent runtimes, gateways, orchestrators, and MCP-style tool systems.
+
+---
+
 ## Problem statement
 
 Agentic systems introduce a failure mode that is not caused by model behavior, but by authorization design.

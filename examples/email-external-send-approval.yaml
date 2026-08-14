@@ -1,0 +1,33 @@
+type: app_permission_policy
+policy_version: 0.4.0
+policy_id: pol_email_001
+issuer: issuer.compliance.example
+subject: user_42
+audience: agent-runtime.mail.example
+intent: Send the reviewed contract update to an external recipient.
+scope:
+  - capability: email.external_send
+    resource: thread:contract-update-456
+    operations:
+      - send_email
+    constraints:
+      allowed_recipients:
+        - legal@example-partner.com
+issued_at: "2026-08-14T18:00:00Z"
+not_before: "2026-08-14T18:00:00Z"
+expires_at: "2026-08-14T19:00:00Z"
+revocation_endpoint: https://issuer.compliance.example/app/revocations
+revocation_mode: online
+approval_gate:
+  required: true
+  mode: sync
+  trigger:
+    capabilities:
+      - email.external_send
+    risk_level: medium
+  approver:
+    type: service
+    authority: dlp-review.example
+  approval_receipt_required: true
+  timeout_seconds: 120
+evidence_ref: dlp-review:DLPR-456

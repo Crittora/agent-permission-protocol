@@ -1,0 +1,20 @@
+approval_receipt:
+  receipt_id: apr_payment_001
+  challenge_id: ch_payment_001
+  policy_id: pol_payment_001
+  approver_subject: user_finance_approver_7
+  approver_authority: finance-approval-system
+  decision: approved
+  approved_scope:
+    - capability: payment.execute
+      resource: invoice:INV-789
+      operations:
+        - submit_payment
+      limits:
+        amount:
+          currency: USD
+          max: 2500
+  issued_at: "2026-08-14T20:45:00Z"
+  expires_at: "2026-08-14T21:00:00Z"
+  nonce: nonce_payment_001
+  signature: ed25519.example.signature

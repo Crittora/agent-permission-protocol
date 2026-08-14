@@ -32,6 +32,8 @@ extra_javascript:
 nav:
   - Overview: index.md
   - Whitepaper: whitepaper.md
+  - Verifier Algorithm: verifier-algorithm.md
+  - Integration Guide: integration-guide.md
   - FAQ: faq.md
   - Versioning: versioning.md
   - Changelog: changelog.md

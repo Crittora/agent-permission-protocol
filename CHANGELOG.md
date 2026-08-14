@@ -36,6 +36,10 @@ requires issuance of a new sealed policy.
 - **Updated verifier compliance checklist** (§13) — requires fail-closed
   approval receipt validation for expired, replayed, malformed, mismatched,
   denied, or untrusted receipts.
+- **Non-normative implementer assets** — JSON Schemas, YAML examples,
+  approval receipt conformance vectors, verifier pseudocode, and integration
+  guidance for agent runtimes, gateways, orchestrators, and MCP-style tool
+  systems.
 
 ### Changed
 

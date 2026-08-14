@@ -1,0 +1,36 @@
+type: app_permission_policy
+policy_version: 0.4.0
+policy_id: pol_payment_001
+issuer: issuer.finance.example
+subject: user_42
+audience: agent-runtime.payments.example
+intent: Pay approved vendor invoice INV-789.
+scope:
+  - capability: payment.execute
+    resource: invoice:INV-789
+    operations:
+      - submit_payment
+    limits:
+      data_volume:
+        max_bytes_read: 1048576
+        max_bytes_written: 4096
+issued_at: "2026-08-14T20:30:00Z"
+not_before: "2026-08-14T20:30:00Z"
+expires_at: "2026-08-14T21:00:00Z"
+revocation_endpoint: https://issuer.finance.example/app/revocations
+revocation_mode: online
+strict_limits: true
+approval_gate:
+  required: true
+  mode: async
+  trigger:
+    capabilities:
+      - payment.execute
+    risk_level: high
+  approver:
+    type: human
+    role: finance-approver
+    authority: finance-approval-system
+  approval_receipt_required: true
+  timeout_seconds: 3600
+evidence_ref: approval-workflow:AWF-123

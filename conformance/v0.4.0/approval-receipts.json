@@ -1,0 +1,201 @@
+{
+  "suite": "APP-Approval-1 approval receipt conformance vectors",
+  "protocol_version": "0.4.0",
+  "notes": [
+    "These vectors describe expected verifier decisions. They are not cryptographic test vectors.",
+    "Implementations must still validate signatures, trust anchors, revocation, derivation chains, replay state, and subset relationships."
+  ],
+  "vectors": [
+    {
+      "name": "valid approval receipt unlocks gated policy authority",
+      "policy_id": "pol_payment_001",
+      "challenge_id": "ch_payment_001",
+      "receipt": {
+        "receipt_id": "apr_payment_001",
+        "challenge_id": "ch_payment_001",
+        "policy_id": "pol_payment_001",
+        "approver_subject": "user_finance_approver_7",
+        "approver_authority": "finance-approval-system",
+        "decision": "approved",
+        "approved_scope": [
+          {
+            "capability": "payment.execute",
+            "resource": "invoice:INV-789",
+            "operations": ["submit_payment"],
+            "limits": {
+              "amount": {
+                "currency": "USD",
+                "max": 2500
+              }
+            }
+          }
+        ],
+        "issued_at": "2026-08-14T20:45:00Z",
+        "expires_at": "2026-08-14T21:00:00Z",
+        "nonce": "nonce_payment_001",
+        "signature": "ed25519.example.signature"
+      },
+      "verifier_context": {
+        "now": "2026-08-14T20:46:00Z",
+        "trusted_approver_authorities": ["finance-approval-system"],
+        "used_nonces": []
+      },
+      "expected_decision": "allow"
+    },
+    {
+      "name": "expired approval receipt fails closed",
+      "policy_id": "pol_payment_001",
+      "challenge_id": "ch_payment_001",
+      "receipt": {
+        "receipt_id": "apr_payment_expired",
+        "challenge_id": "ch_payment_001",
+        "policy_id": "pol_payment_001",
+        "approver_subject": "user_finance_approver_7",
+        "approver_authority": "finance-approval-system",
+        "decision": "approved",
+        "approved_scope": [
+          {
+            "capability": "payment.execute",
+            "resource": "invoice:INV-789",
+            "operations": ["submit_payment"]
+          }
+        ],
+        "issued_at": "2026-08-14T20:00:00Z",
+        "expires_at": "2026-08-14T20:30:00Z",
+        "nonce": "nonce_payment_expired",
+        "signature": "ed25519.example.signature"
+      },
+      "verifier_context": {
+        "now": "2026-08-14T20:46:00Z",
+        "trusted_approver_authorities": ["finance-approval-system"],
+        "used_nonces": []
+      },
+      "expected_decision": "deny",
+      "expected_reason": "approval_receipt_expired"
+    },
+    {
+      "name": "mismatched policy_id fails closed",
+      "policy_id": "pol_payment_001",
+      "challenge_id": "ch_payment_001",
+      "receipt": {
+        "receipt_id": "apr_payment_wrong_policy",
+        "challenge_id": "ch_payment_001",
+        "policy_id": "pol_other",
+        "approver_subject": "user_finance_approver_7",
+        "approver_authority": "finance-approval-system",
+        "decision": "approved",
+        "approved_scope": [
+          {
+            "capability": "payment.execute",
+            "resource": "invoice:INV-789",
+            "operations": ["submit_payment"]
+          }
+        ],
+        "issued_at": "2026-08-14T20:45:00Z",
+        "expires_at": "2026-08-14T21:00:00Z",
+        "nonce": "nonce_payment_wrong_policy",
+        "signature": "ed25519.example.signature"
+      },
+      "verifier_context": {
+        "now": "2026-08-14T20:46:00Z",
+        "trusted_approver_authorities": ["finance-approval-system"],
+        "used_nonces": []
+      },
+      "expected_decision": "deny",
+      "expected_reason": "approval_receipt_policy_mismatch"
+    },
+    {
+      "name": "scope expansion attempt fails closed",
+      "policy_id": "pol_payment_001",
+      "challenge_id": "ch_payment_001",
+      "receipt": {
+        "receipt_id": "apr_payment_scope_expansion",
+        "challenge_id": "ch_payment_001",
+        "policy_id": "pol_payment_001",
+        "approver_subject": "user_finance_approver_7",
+        "approver_authority": "finance-approval-system",
+        "decision": "approved",
+        "approved_scope": [
+          {
+            "capability": "payment.execute",
+            "resource": "invoice:INV-789",
+            "operations": ["submit_payment", "cancel_payment"]
+          }
+        ],
+        "issued_at": "2026-08-14T20:45:00Z",
+        "expires_at": "2026-08-14T21:00:00Z",
+        "nonce": "nonce_payment_scope_expansion",
+        "signature": "ed25519.example.signature"
+      },
+      "verifier_context": {
+        "now": "2026-08-14T20:46:00Z",
+        "trusted_approver_authorities": ["finance-approval-system"],
+        "used_nonces": []
+      },
+      "expected_decision": "deny",
+      "expected_reason": "approval_receipt_scope_expansion"
+    },
+    {
+      "name": "replayed receipt nonce fails closed",
+      "policy_id": "pol_payment_001",
+      "challenge_id": "ch_payment_001",
+      "receipt": {
+        "receipt_id": "apr_payment_replay",
+        "challenge_id": "ch_payment_001",
+        "policy_id": "pol_payment_001",
+        "approver_subject": "user_finance_approver_7",
+        "approver_authority": "finance-approval-system",
+        "decision": "approved",
+        "approved_scope": [
+          {
+            "capability": "payment.execute",
+            "resource": "invoice:INV-789",
+            "operations": ["submit_payment"]
+          }
+        ],
+        "issued_at": "2026-08-14T20:45:00Z",
+        "expires_at": "2026-08-14T21:00:00Z",
+        "nonce": "nonce_payment_replay",
+        "signature": "ed25519.example.signature"
+      },
+      "verifier_context": {
+        "now": "2026-08-14T20:46:00Z",
+        "trusted_approver_authorities": ["finance-approval-system"],
+        "used_nonces": ["nonce_payment_replay"]
+      },
+      "expected_decision": "deny",
+      "expected_reason": "approval_receipt_replay"
+    },
+    {
+      "name": "untrusted approver authority fails closed",
+      "policy_id": "pol_payment_001",
+      "challenge_id": "ch_payment_001",
+      "receipt": {
+        "receipt_id": "apr_payment_untrusted",
+        "challenge_id": "ch_payment_001",
+        "policy_id": "pol_payment_001",
+        "approver_subject": "user_finance_approver_7",
+        "approver_authority": "untrusted-approval-system",
+        "decision": "approved",
+        "approved_scope": [
+          {
+            "capability": "payment.execute",
+            "resource": "invoice:INV-789",
+            "operations": ["submit_payment"]
+          }
+        ],
+        "issued_at": "2026-08-14T20:45:00Z",
+        "expires_at": "2026-08-14T21:00:00Z",
+        "nonce": "nonce_payment_untrusted",
+        "signature": "ed25519.example.signature"
+      },
+      "verifier_context": {
+        "now": "2026-08-14T20:46:00Z",
+        "trusted_approver_authorities": ["finance-approval-system"],
+        "used_nonces": []
+      },
+      "expected_decision": "deny",
+      "expected_reason": "approval_receipt_untrusted_authority"
+    }
+  ]
+}

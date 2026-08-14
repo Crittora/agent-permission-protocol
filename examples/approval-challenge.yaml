@@ -1,0 +1,11 @@
+approval_challenge:
+  challenge_id: ch_payment_001
+  policy_id: pol_payment_001
+  requested_capability: payment.execute
+  requested_resource: invoice:INV-789
+  requested_operation: submit_payment
+  requested_limits:
+    amount:
+      currency: USD
+      max: 2500
+  expires_at: "2026-08-14T21:00:00Z"

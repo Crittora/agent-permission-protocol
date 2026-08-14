@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentpermissionprotocol.com/schemas/approval-challenge.schema.json",
+  "title": "APP Approval Challenge",
+  "description": "Machine-readable structural schema for APP-Approval-1 approval challenges.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "approval_challenge"
+  ],
+  "properties": {
+    "approval_challenge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "challenge_id",
+        "policy_id",
+        "requested_capability",
+        "requested_operation",
+        "expires_at"
+      ],
+      "properties": {
+        "challenge_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_capability": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_resource": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_limits": {
+          "type": "object"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

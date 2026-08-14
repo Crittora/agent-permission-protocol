@@ -1,0 +1,39 @@
+type: app_permission_policy
+policy_version: 0.4.0
+policy_id: pol_payment_child_001
+issuer: issuer.finance.example
+subject: user_42
+audience: subagent-runtime.payments.example
+intent: Submit the already approved vendor invoice payment through a delegated payment sub-agent.
+scope:
+  - capability: payment.execute
+    resource: invoice:INV-789
+    operations:
+      - submit_payment
+issued_at: "2026-08-14T20:40:00Z"
+not_before: "2026-08-14T20:40:00Z"
+expires_at: "2026-08-14T20:55:00Z"
+revocation_endpoint: https://issuer.finance.example/app/revocations
+revocation_mode: online
+delegation:
+  allowed: false
+  max_depth: 1
+derivation_chain:
+  parent_policy_id: pol_payment_001
+  parent_policy_hash: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  delegation_depth: 1
+  max_depth: 1
+approval_gate:
+  required: true
+  mode: async
+  trigger:
+    capabilities:
+      - payment.execute
+    risk_level: high
+  approver:
+    type: human
+    role: finance-approver
+    authority: finance-approval-system
+  approval_receipt_required: true
+  timeout_seconds: 900
+evidence_ref: approval-workflow:AWF-123
