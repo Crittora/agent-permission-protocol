@@ -1,0 +1,26 @@
+name: Validate Implementer Assets
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - run: pip install -r requirements-dev.txt
+
+      - run: python scripts/validate-assets.py
+
+      - run: mkdocs build --strict

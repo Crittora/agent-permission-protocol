@@ -44,6 +44,8 @@ requires issuance of a new sealed policy.
   approval receipt conformance vectors, verifier pseudocode, and integration
   guidance for agent runtimes, gateways, orchestrators, and MCP-style tool
   systems.
+- **Asset validation CI** — adds schema/example/vector validation and runs it
+  before the GitHub Pages build.
 
 ### Changed
 

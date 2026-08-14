@@ -64,6 +64,7 @@ delegation authority. Expanded authority requires a newly issued sealed policy.
 - `examples/approval-challenge.yaml`
 - `examples/approval-receipt.yaml`
 - `conformance/v0.4.0/approval-receipts.json`
+- `conformance/v0.4.0/README.md`
 
 The schemas validate document shape only. A conformant verifier must still
 perform cryptographic verification, trust evaluation, replay protection,

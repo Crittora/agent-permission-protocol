@@ -124,6 +124,9 @@ This repository includes non-normative implementation assets for APP v0.4.0:
 - Verifier pseudocode in `docs/verifier-algorithm.md`
 - Runtime and MCP integration guidance in `docs/integration-guide.md`
 
+Implementer assets are validated by `scripts/validate-assets.py` and the
+`Validate Implementer Assets` GitHub Actions workflow.
+
 ---
 
 ## Intended audience

@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: "3.x"
 
-      - run: pip install mkdocs-material
+      - run: pip install -r requirements-dev.txt
+
+      - run: python scripts/validate-assets.py
 
       - run: mkdocs build --strict
 

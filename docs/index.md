@@ -48,6 +48,7 @@ APP v0.4.0 includes non-normative assets for implementers:
 - YAML examples for payment approval, external email approval, derived policies, challenges, and receipts.
 - Approval receipt conformance vectors for allow and fail-closed cases.
 - A verifier algorithm page and integration guide for agent runtimes, gateways, orchestrators, and MCP-style tool systems.
+- CI validation for schema structure, YAML examples, conformance vectors, and the strict MkDocs build.
 
 ---
 
