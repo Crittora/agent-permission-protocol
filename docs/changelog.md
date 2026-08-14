@@ -10,6 +10,52 @@ The format of this changelog is intentionally explicit. The protocol is versione
 
 ---
 
+## [0.4.0] — Approval gates and signed approval receipts
+
+**Status:** Draft / Public Review
+**Release date:** 2026-08-14
+**Previous version:** v0.3.0 (2026-05-21)
+
+This release adds `APP-Approval-1`, a normative approval gate and signed
+approval receipt model for high-consequence agent actions. Approval can unlock
+gated authority that is already declared in a sealed policy. Expanded authority
+requires issuance of a new sealed policy.
+
+### Added
+
+- **`approval_gate` optional policy field** (§6) — policies may declare human
+  or service approval requirements for gated capabilities.
+- **`APP-Approval-1` approval flow** (§7.6) — defines approval challenges,
+  signed approval receipts, receipt validation, timeout handling, replay
+  protection, and fail-closed denial semantics.
+- **Approval receipt minimum fields** (§7.6) — `receipt_id`, `challenge_id`,
+  `policy_id`, `approver_subject`, `approver_authority`, `decision`,
+  `approved_scope`, `issued_at`, `expires_at`, `nonce`, and `signature`.
+- **Expanded 13-step verifier pipeline** (§7) — adds approval receipt
+  validation after revocation and derivation checks and before capability
+  resolution.
+- **Audit evidence update** (§8) — audit records should include approval
+  challenge ID, receipt ID, approver authority, approval decision, and receipt
+  validation outcome when an approval gate applies.
+- **Updated verifier compliance checklist** (§13) — requires fail-closed
+  approval receipt validation for expired, replayed, malformed, mismatched,
+  denied, or untrusted receipts.
+
+### Changed
+
+- Whitepaper status, conclusion, roadmap, and diagrams updated to v0.4.0.
+- `approval_gate` moved from future roadmap item to delivered v0.4.0 protocol
+  capability.
+
+### Notes
+
+- Approval receipts do not create authority. They unlock gated authority
+  already declared in a sealed policy.
+- Any expansion of scope, limits, audience, subject, or delegation authority
+  requires a newly issued sealed policy.
+
+---
+
 ## [0.3.0] — Revocation, derivation chain, and typed limits
 
 **Status:** Draft / Public Review

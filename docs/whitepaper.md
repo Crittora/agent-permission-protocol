@@ -1,10 +1,10 @@
 ---
-description: "Full mirrored whitepaper for Agent Permission Protocol (APP) v0.3.0. The canonical publication remains crittora.com/app/whitepaper."
+description: "Full mirrored whitepaper for Agent Permission Protocol (APP) v0.4.0. The canonical publication remains crittora.com/app/whitepaper."
 ---
 
 # Agent Permission Protocol (APP) Whitepaper
 
-> This page mirrors the full APP v0.3.0 whitepaper for public reading and distribution.
+> This page mirrors the full APP v0.4.0 whitepaper for public reading and distribution.
 > The canonical publication remains **https://www.crittora.com/app/whitepaper**.
 > If wording ever diverges, the canonical publication controls.
 
@@ -45,11 +45,11 @@ transport and OAuth standardizes delegated identity, APP standardizes
 executable authority. Without an explicit authority layer, autonomous agents
 cannot be made safe at scale.
 
-APP v0.3.0 strengthens the protocol by normalizing a typed `limits`
-schema, adding a cryptographic `derivation_chain` for delegated policies,
-and defining a normative revocation interface with `online`, `cached`, and
-`stapled` modes so that in-flight authority can be revoked, checked, and
-proven in audit.
+APP v0.4.0 adds `APP-Approval-1`, a normative approval gate and signed
+approval receipt model for high-consequence agent actions. Approval can unlock
+authority already declared in a sealed policy, but expanded authority requires
+issuance of a new sealed policy. This preserves APP's core invariant that
+execution authority is policy-derived, not approval-UI-derived.
 
 ## Abstract
 
@@ -76,27 +76,25 @@ Figures are illustrative and non-normative unless stated otherwise.
 
 ## Status and document scope
 
-- Version: v0.3.0
+- Version: v0.4.0
 - Status: Draft / Public Review
-- Release date: 2026-05-21
-- Previous version: v0.2.0 (2026-03-11)
+- Release date: 2026-08-14
+- Previous version: v0.3.0 (2026-05-21)
 - Canonical publication: https://www.crittora.com/app/whitepaper
 - Public mirror and changelog: https://www.agentpermissionprotocol.com
 
-### v0.3.0 changes (summary)
+### v0.4.0 changes (summary)
 
-- §6: `revocation_endpoint` is REQUIRED in every sealed policy
-- §6.1 (new): normative schema for `limits` with typed primitives
-- §7: verifier pipeline expanded from 10 to 12 ordered steps (added revocation
-  and derivation chain checks)
-- §7.4: derived policies MUST carry cryptographic `derivation_chain`
-- §7.5 (new): revocation discovery, query interface, freshness, and
-  `revocation_mode` semantics
-- §8: audit record SHOULD include the full derivation chain and the
-  revocation check outcome
-- §13: verifier compliance checklist updated to reflect revocation,
-  derivation chain, and typed limits
-- §18 (new): v0.4.0 roadmap and `APP-Federation-1` companion spec
+- §6: `approval_gate` added as a normative optional policy field
+- §7: verifier pipeline expanded from 12 to 13 ordered steps
+- §7.6 (new): `APP-Approval-1` approval challenges and signed approval
+  receipts
+- §8: audit record SHOULD include approval challenge and receipt evidence
+- §13: verifier compliance checklist updated to require fail-closed approval
+  receipt validation when an approval gate applies
+- §18: roadmap updated so `approval_gate` is delivered in v0.4.0 while
+  `suspendable`, `content_integrity`, and `APP-Federation-1` remain future
+  work
 
 The whitepaper is the canonical publication of APP. Public mirrors, summaries,
 and implementation notes MUST NOT override normative protocol language
@@ -278,6 +276,8 @@ sequenceDiagram
   P->>V: Present sealed permission policy
   V->>V: Decrypt and verify signature
   V->>V: Validate fields, time bounds, audience, replay, limits
+  V->>V: Check revocation and derivation chain
+  V->>V: Validate approval receipt when approval gate applies
   V->>V: Resolve capabilities
   V->>E: Construct execution capability surface
   E->>T: Execute within authorized scope
@@ -312,7 +312,7 @@ executor may self-attest authority without an equivalent verifier function.
 
 Permission policies are machine-readable documents with these REQUIRED fields:
 
-- `type`: protocol artifact identifier. For APP v0.3.0, this MUST be
+- `type`: protocol artifact identifier. For APP v0.4.0, this MUST be
   `app_permission_policy`.
 - `policy_version`: semantic version of the protocol profile used to interpret
   the policy.
@@ -327,7 +327,7 @@ Permission policies are machine-readable documents with these REQUIRED fields:
 - `not_before`: earliest instant at which the policy becomes valid.
 - `expires_at`: latest instant at which the policy remains valid.
 - `revocation_endpoint`: URI from which revocation status for the policy can
-  be queried by a verifier (REQUIRED in v0.3.0).
+  be queried by a verifier (REQUIRED in v0.4.0).
 
 The `scope` field MUST be an allowlist. Each scope entry SHOULD identify:
 
@@ -349,6 +349,8 @@ Optional fields include:
 - `derivation_chain`: cryptographic lineage to the parent policy (see §7.4)
 - `revocation_mode`: declared revocation mode — `online`, `cached`, or
   `stapled` (see §7.5)
+- `approval_gate`: human or service approval requirements for high-consequence
+  capabilities (see §7.6)
 - `metering`: optional metadata for accounting or billing
 - `evidence_ref`: issuer-side reference to approval context or business record
 
@@ -361,7 +363,7 @@ See Figure 3 for the policy structure and sealing requirements.
 
 ```mermaid
 flowchart LR
-  policy["Permission policy (plaintext)<br/>Required: type, policy_version, policy_id, issuer, subject, audience, intent, scope, issued_at, not_before, expires_at, revocation_endpoint<br/>Optional: nonce, predicates, limits, strict_limits, delegation, derivation_chain, revocation_mode, metering, evidence_ref"]
+  policy["Permission policy (plaintext)<br/>Required: type, policy_version, policy_id, issuer, subject, audience, intent, scope, issued_at, not_before, expires_at, revocation_endpoint<br/>Optional: nonce, predicates, limits, strict_limits, delegation, derivation_chain, revocation_mode, approval_gate, metering, evidence_ref"]
   sign["Sign<br/>Ed25519"]
   encrypt["Encrypt signed payload<br/>X25519 + AEAD"]
   sealed["Sealed permission policy<br/>ciphertext"]
@@ -438,11 +440,12 @@ perform the following steps in order:
 6. Enforce audience binding.
 7. Check revocation per the policy's `revocation_mode` (see §7.5).
 8. Verify `derivation_chain` when the policy is derived (see §7.4).
-9. Resolve policy capabilities using the verifier capability registry.
-10. Construct the execution capability surface.
-11. Apply runtime limits and constraints, including the typed `limits`
+9. Validate approval receipt when an approval gate applies (see §7.6).
+10. Resolve policy capabilities using the verifier capability registry.
+11. Construct the execution capability surface.
+12. Apply runtime limits and constraints, including the typed `limits`
     primitives defined in §6.1.
-12. Begin execution.
+13. Begin execution.
 
 Any failure results in denial.
 
@@ -458,13 +461,14 @@ flowchart TD
   step6["6. Enforce audience binding"]
   step7["7. Check revocation per revocation_mode (§7.5)"]
   step8["8. Verify derivation_chain when policy is derived (§7.4)"]
-  step9["9. Resolve policy capabilities using verifier registry"]
-  step10["10. Construct execution capability surface"]
-  step11["11. Apply runtime limits per typed primitives (§6.1)"]
-  step12["12. Begin execution"]
+  step9["9. Validate approval receipt when approval gate applies (§7.6)"]
+  step10["10. Resolve policy capabilities using verifier registry"]
+  step11["11. Construct execution capability surface"]
+  step12["12. Apply runtime limits per typed primitives (§6.1)"]
+  step13["13. Begin execution"]
   deny["Any failure -> deny execution"]
 
-  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10 --> step11 --> step12
+  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10 --> step11 --> step12 --> step13
   step1 -. failure .-> deny
   step2 -. failure .-> deny
   step3 -. failure .-> deny
@@ -476,9 +480,10 @@ flowchart TD
   step9 -. failure .-> deny
   step10 -. failure .-> deny
   step11 -. failure .-> deny
+  step12 -. failure .-> deny
 ```
 
-_Figure 4. Verifier pipeline (fail closed). Verification is deterministic and denies execution on any cryptographic, semantic, revocation, derivation, or policy validation failure. The pipeline is 12 ordered steps in v0.3.0._
+_Figure 4. Verifier pipeline (fail closed). Verification is deterministic and denies execution on any cryptographic, semantic, revocation, derivation, approval, or policy validation failure. The pipeline is 13 ordered steps in v0.4.0._
 
 ## 7.1 Capability resolution
 
@@ -632,7 +637,7 @@ policies.
 
 ## 7.5 Revocation
 
-Every v0.3.0 sealed permission policy MUST declare a `revocation_endpoint`.
+Every v0.4.0 sealed permission policy MUST declare a `revocation_endpoint`.
 A verifier uses this endpoint to query the live revocation status of a
 policy at execution time.
 
@@ -696,6 +701,103 @@ A verifier MUST check revocation whenever the policy's remaining time-to-live
   MUST be treated as a denial, OR the verifier MAY fall back to `online`
   behavior. A policy MUST declare which fallback is permitted.
 
+## 7.6 Approval gates and signed approval receipts (APP-Approval-1)
+
+APP-Approval-1 defines a portable approval layer for high-consequence actions.
+Approval can unlock gated authority that is already declared in a sealed
+permission policy. Approval MUST NOT expand the policy's scope, limits,
+audience, subject, or delegation authority. Expanded authority requires a new
+sealed policy issued by an authorized issuer.
+
+Permission policies MAY include an `approval_gate`:
+
+```yaml
+approval_gate:
+  required: true
+  mode: async              # sync | async
+  trigger:
+    capabilities: [payment.execute, email.external_send]
+    risk_level: high
+  approver:
+    type: human            # human | service | quorum
+    role: finance-approver
+  approval_receipt_required: true
+  timeout_seconds: 3600
+```
+
+The `approval_gate` field has the following minimum fields:
+
+- `required`: whether approval is required before gated authority can execute.
+- `mode`: `sync` or `async`.
+- `trigger`: the capabilities, risk class, or policy condition that requires
+  approval.
+- `approver`: the approval authority or authority class trusted by the
+  verifier.
+- `approval_receipt_required`: whether a signed approval receipt must be
+  presented before execution.
+- `timeout_seconds`: maximum time a verifier may wait for approval before
+  denying or suspending execution.
+
+When an approval gate applies and no valid approval receipt is present, the
+verifier MUST deny execution in `sync` mode or suspend execution in `async`
+mode until a valid receipt is presented or the timeout expires.
+
+The verifier or approval service MAY emit an approval challenge:
+
+```yaml
+approval_challenge:
+  challenge_id: ch_123
+  policy_id: pol_abc123
+  requested_capability: payment.execute
+  requested_resource: invoice_789
+  requested_operation: submit_payment
+  requested_limits:
+    amount:
+      currency: USD
+      max: 2500
+  expires_at: 2026-08-14T21:00:00Z
+```
+
+A signed approval receipt MUST include, at minimum:
+
+```yaml
+approval_receipt:
+  receipt_id: apr_456
+  challenge_id: ch_123
+  policy_id: pol_abc123
+  approver_subject: user_42
+  approver_authority: finance-approval-system
+  decision: approved
+  approved_scope:
+    - capability: payment.execute
+      resource: invoice_789
+      limits:
+        amount:
+          currency: USD
+          max: 2500
+  issued_at: 2026-08-14T20:45:00Z
+  expires_at: 2026-08-14T21:00:00Z
+  nonce: n_abc
+  signature: ed25519...
+```
+
+The verifier MUST validate that:
+
+- the receipt signature verifies under an approver authority trusted for the
+  policy's `approval_gate`;
+- `policy_id` and `challenge_id` bind the receipt to the active policy and
+  approval challenge;
+- `decision` authorizes the requested execution;
+- `approved_scope` is a subset of the sealed policy's scope and does not
+  expand limits, audience, subject, or delegation authority;
+- `issued_at` and `expires_at` are valid under a trusted clock;
+- `nonce` or equivalent replay protection has not been used before.
+
+Expired, replayed, malformed, mismatched, denied, or untrusted approval
+receipts MUST result in denial. Approval receipt validation occurs before
+capability resolution so that the execution surface remains derived from the
+sealed permission policy plus verified approval evidence.
+
 ## 8. Audit evidence model
 
 Every verifier decision SHOULD emit a durable audit record. For conformance,
@@ -716,6 +818,9 @@ the minimum record SHOULD include:
 - revocation check outcome — including `revocation_mode`, the endpoint
   queried, the response status, and the cache or stapled-assertion
   freshness observed at decision time (per §7.5)
+- approval evidence when an approval gate applies — including approval
+  challenge ID, receipt ID, approver authority, approval decision, and receipt
+  validation outcome (per §7.6)
 
 The audit record MAY omit confidential policy content, but it MUST be
 sufficient to prove that a specific verifier reached a specific decision for a
@@ -725,7 +830,7 @@ the originating issuer.
 
 ## 9. Conformance classes
 
-APP v0.3.0 defines three core conformance classes:
+APP v0.4.0 defines three core conformance classes:
 
 - Issuer conformance: produces well-formed policies, signs them, and binds
   policy semantics to the intended audience and time window.
@@ -899,11 +1004,14 @@ An APP-compliant verifier MUST:
   `online` check cannot complete (see §7.5).
 - Verify `derivation_chain` including parent hash and incremented depth
   when the policy is derived (see §7.4).
+- Validate signed approval receipts when an `approval_gate` applies; fail
+  closed on expired, replayed, malformed, mismatched, denied, or untrusted
+  receipts (see §7.6).
 - Evaluate predicates and limits; deny on unknown limit types when
   `strict_limits: true` (see §6.1).
 - Expose only allowlisted tools and capabilities.
-- Emit an audit record for each authorization decision, including the
-  derivation chain and revocation check outcome when applicable.
+- Emit an audit record for each authorization decision, including derivation
+  chain, revocation check outcome, and approval evidence when applicable.
 - Fail closed on ambiguity, parse errors, unsupported critical fields, or
   missing execution context.
 
@@ -911,7 +1019,7 @@ An APP-compliant verifier MUST:
 
 APP uses semantic versioning for protocol publication:
 
-- Patch releases (`0.3.x`) are reserved for editorial clarification,
+- Patch releases (`0.4.x`) are reserved for editorial clarification,
   non-normative examples, or publication corrections that do not change
   conformance behavior.
 - Minor releases (`0.x.0`) may add or refine normative semantics, required
@@ -954,34 +1062,22 @@ Agentic AI requires a new execution security boundary.
 APP establishes explicit, time-bound authority through cryptographically
 verifiable permission policies and deterministic runtime enforcement.
 
-APP v0.3.0 strengthens this model by introducing a typed `limits` schema,
-cryptographic `derivation_chain` lineage, a normative revocation interface
-with `online`, `cached`, and `stapled` modes, and an extended 12-step
-verifier pipeline that places revocation and derivation checks before
-capability resolution.
+APP v0.4.0 strengthens this model by adding `APP-Approval-1`, a signed
+approval receipt model for high-consequence actions. The verifier pipeline now
+places approval receipt validation after revocation and derivation checks and
+before capability resolution.
 
 These mechanisms ensure that agent authority remains explicit, bounded,
-portable, and auditable across platforms — and that the lineage of
-delegated authority is provable from a single audit record.
+portable, and auditable across platforms — and that high-consequence execution
+can be approved without converting approval UI into an authority source.
 
-## 18. Roadmap — v0.4.0 and beyond
+## 18. Roadmap — beyond v0.4.0
 
-This section is informational. It identifies the v0.4.0 additions under
-public review and the `APP-Federation-1` companion spec. Conformance to
-v0.3.0 does not require support for any item in this section.
+This section is informational. It identifies additions under public review
+after v0.4.0 and the `APP-Federation-1` companion spec. Conformance to v0.4.0
+does not require support for any item in this section.
 
-### 18.1 Human-in-the-loop authorization (`approval_gate`) — v0.4.0
-
-```yaml
-approval_gate:
-  required: true
-  approver_role: compliance-officer
-  timeout_seconds: 3600
-  mode: async
-  approval_ref: null
-```
-
-### 18.2 Policy suspension and resume (`suspendable`) — v0.4.0
+### 18.1 Policy suspension and resume (`suspendable`) — future
 
 ```yaml
 suspendable:
@@ -994,7 +1090,7 @@ suspendable:
   state_ref: null
 ```
 
-### 18.3 Prompt-injection input attestation (`content_integrity`) — v0.4.0 (OPTIONAL)
+### 18.2 Prompt-injection input attestation (`content_integrity`) — future (OPTIONAL)
 
 ```yaml
 content_integrity:
@@ -1005,7 +1101,7 @@ content_integrity:
   injection_resistance_level: strict
 ```
 
-### 18.4 Cross-domain trust federation (`APP-Federation-1`)
+### 18.3 Cross-domain trust federation (`APP-Federation-1`)
 
 ```yaml
 trust_root:
@@ -1015,7 +1111,7 @@ trust_root:
   cross_domain_allowed: true
 ```
 
-### 18.5 Intentionally out of scope
+### 18.4 Intentionally out of scope
 
 The following remain out of scope for APP regardless of version:
 
@@ -1024,14 +1120,14 @@ The following remain out of scope for APP regardless of version:
 - Tool correctness or runtime safety beyond the policy-derived execution
   surface
 
-### 18.6 Target versioning summary
+### 18.5 Target versioning summary
 
 | Recommendation                                          | Target          |
 |---------------------------------------------------------|-----------------|
 | Normalize `limits` schema                               | v0.3.0          |
 | Revocation endpoint normalization                       | v0.3.0          |
 | Policy provenance chain (`derivation_chain`)            | v0.3.0          |
-| HITL `approval_gate`                                    | v0.4.0          |
-| Suspension and resume (`suspendable`)                   | v0.4.0          |
-| Content integrity (`content_integrity`)                 | v0.4.0 (OPTIONAL) |
+| Approval gates and signed receipts (`APP-Approval-1`)   | v0.4.0          |
+| Suspension and resume (`suspendable`)                   | future          |
+| Content integrity (`content_integrity`)                 | future (OPTIONAL) |
 | Cross-domain trust federation                           | APP-Federation-1 |

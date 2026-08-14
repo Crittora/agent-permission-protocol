@@ -80,10 +80,10 @@ APP exists to provide that invariant layer.
 
 ## Status
 
-- Current version: **v0.3.0**
+- Current version: **v0.4.0**
 - Status: **Draft / Public Review**
 
-`v0.3.0` advances the implementable draft by requiring every sealed policy to declare a `revocation_endpoint`, normalizing a typed `limits` schema, introducing a cryptographic `derivation_chain` for delegated policies, and expanding the verifier pipeline from 10 to 12 ordered steps. It also defines a normative revocation interface with `online`, `cached`, and `stapled` modes, and adds a roadmap for `approval_gate`, `suspendable`, `content_integrity`, and `APP-Federation-1`.
+`v0.4.0` adds `APP-Approval-1`, a normative approval gate and signed approval receipt model for high-consequence agent actions. It expands the verifier pipeline to 13 ordered steps by validating approval receipts after revocation and derivation checks, but before capability resolution. Approval can unlock already-declared gated authority, while expanded authority requires issuance of a new sealed policy.
 
 ---
 

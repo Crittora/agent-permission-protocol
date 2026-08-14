@@ -18,7 +18,7 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 extra:
-  app_version: v0.3.0
+  app_version: v0.4.0
   org_name: Crittora
   org_url: https://www.crittora.com/
 

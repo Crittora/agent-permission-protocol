@@ -22,7 +22,7 @@ Identity proves who is calling a system, but authority defines what actions are 
 
 ## What does APP verification enforce?
 
-A compliant APP verifier performs a 12-step deterministic, fail-closed pipeline that includes decryption, signature validation, issuer trust, required fields, time bounds, replay protection, audience binding, revocation checking, derivation chain verification (for delegated policies), capability resolution, execution surface construction, and typed limit evaluation.
+A compliant APP verifier performs a 13-step deterministic, fail-closed pipeline that includes decryption, signature validation, issuer trust, required fields, time bounds, replay protection, audience binding, revocation checking, derivation chain verification (for delegated policies), approval receipt validation when an approval gate applies, capability resolution, execution surface construction, and typed limit evaluation.
 
 ## How does APP prevent replay and ambient authority?
 
@@ -34,12 +34,16 @@ APP is enforced in agent runtimes, API gateways, or orchestrators to gate tool e
 
 ## Does APP support revocation of in-flight policies?
 
-Yes. APP v0.3.0 requires every sealed policy to declare a `revocation_endpoint`. Verifiers check revocation status per the policy's `revocation_mode` — `online`, `cached`, or `stapled` — and fail closed when an `online` check cannot complete.
+Yes. APP requires every sealed policy to declare a `revocation_endpoint`. Verifiers check revocation status per the policy's `revocation_mode` — `online`, `cached`, or `stapled` — and fail closed when an `online` check cannot complete.
 
 ## How does APP prove the lineage of delegated policies?
 
-Derived policies in v0.3.0 must carry a `derivation_chain` that cryptographically binds them to the parent policy hash and increments delegation depth. A single audit record for a terminal action can reconstruct the full authorization path back to the original issuer.
+Derived policies must carry a `derivation_chain` that cryptographically binds them to the parent policy hash and increments delegation depth. A single audit record for a terminal action can reconstruct the full authorization path back to the original issuer.
 
-## What is being proposed for APP v0.4.0?
+## How does APP handle human or service approval?
 
-`approval_gate` for human-in-the-loop authorization, `suspendable` for in-flight policy suspension, and `content_integrity` for input attestation against prompt injection. Cross-domain trust federation is being scoped as a separate `APP-Federation-1` companion spec.
+APP v0.4.0 defines `APP-Approval-1`: policies may include an `approval_gate`, and verifiers validate signed approval receipts before exposing gated authority. Approval can unlock authority already declared in a sealed policy, but expanded authority requires a new sealed policy.
+
+## What remains on the APP roadmap?
+
+`suspendable` for in-flight policy suspension and `content_integrity` for input attestation remain under review. Cross-domain trust federation is being scoped as a separate `APP-Federation-1` companion spec.

@@ -117,7 +117,7 @@ APP exists to provide that invariant layer.
 
 ## Protocol diagrams
 
-The diagrams below summarize the current `v0.3.0` public draft and align with the canonical whitepaper.
+The diagrams below summarize the current `v0.4.0` public draft and align with the canonical whitepaper.
 
 ### Execution flow
 
@@ -182,13 +182,14 @@ flowchart TD
   step6["6. Enforce audience binding"]
   step7["7. Check revocation per revocation_mode (§7.5)"]
   step8["8. Verify derivation_chain when policy is derived (§7.4)"]
-  step9["9. Resolve policy capabilities using verifier registry"]
-  step10["10. Construct execution capability surface"]
-  step11["11. Apply runtime limits per typed primitives (§6.1)"]
-  step12["12. Begin execution"]
+  step9["9. Validate approval receipt when approval gate applies (§7.6)"]
+  step10["10. Resolve policy capabilities using verifier registry"]
+  step11["11. Construct execution capability surface"]
+  step12["12. Apply runtime limits per typed primitives (§6.1)"]
+  step13["13. Begin execution"]
   deny["Any failure -> deny execution"]
 
-  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10 --> step11 --> step12
+  step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> step9 --> step10 --> step11 --> step12 --> step13
   step1 -. failure .-> deny
   step2 -. failure .-> deny
   step3 -. failure .-> deny
@@ -200,9 +201,10 @@ flowchart TD
   step9 -. failure .-> deny
   step10 -. failure .-> deny
   step11 -. failure .-> deny
+  step12 -. failure .-> deny
 ```
 
-<p class="diagram-caption">Figure 3. Validation is deterministic and fail-closed. Revocation, derivation chain, capability resolution, and execution surface construction occur before execution begins. The pipeline is 12 ordered steps in v0.3.0.</p>
+<p class="diagram-caption">Figure 3. Validation is deterministic and fail-closed. Revocation, derivation chain, approval receipt validation, capability resolution, and execution surface construction occur before execution begins. The pipeline is 13 ordered steps in v0.4.0.</p>
 
 ### Sequence diagram
 
@@ -222,6 +224,7 @@ sequenceDiagram
   V->>V: Validate fields, time bounds, audience, replay, limits
   V->>V: Check revocation per revocation_mode (§7.5)
   V->>V: Verify derivation_chain when policy is derived (§7.4)
+  V->>V: Validate approval receipt when approval gate applies (§7.6)
   V->>V: Resolve capabilities
   V->>E: Construct execution capability surface
   E->>T: Execute within authorized scope
@@ -239,10 +242,10 @@ sequenceDiagram
 
 ## Status
 
-- Current version: **v0.3.0**
+- Current version: **v0.4.0**
 - Status: **Draft / Public Review**
 
-`v0.3.0` advances the implementable draft by requiring every sealed policy to declare a `revocation_endpoint`, normalizing a typed `limits` schema, introducing a cryptographic `derivation_chain` for delegated policies, and expanding the verifier pipeline from 10 to 12 ordered steps. It also defines a normative revocation interface with `online`, `cached`, and `stapled` modes, and adds a roadmap for `approval_gate`, `suspendable`, `content_integrity`, and `APP-Federation-1`.
+`v0.4.0` adds `APP-Approval-1`, a normative approval gate and signed approval receipt model for high-consequence agent actions. It expands the verifier pipeline to 13 ordered steps by validating approval receipts after revocation and derivation checks, but before capability resolution. Approval can unlock already-declared gated authority, while expanded authority requires issuance of a new sealed policy.
 
 ---
 
